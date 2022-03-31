@@ -1,44 +1,21 @@
 import { StatusCodes } from "http-status-codes";
 import { NextFunction, Request, Response, Router } from "express";
-import ForbiddenError from "../models/errors/forbidden.error.model";
-import userRepositoty from "../repositories/user.repositoty";
 import JWT from "jsonwebtoken";
+import BasicAuthMiddleware from "../middlewares/basic.auth.middleware";
+import ForbiddenError from "../models/errors/forbidden.error.model";
 
 const authRoute = Router();
 authRoute.post(
   "/token",
+  BasicAuthMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const authHeader = req.headers["authorization"];
-      if (!authHeader) {
-        throw new ForbiddenError("No authorization header found", "Error");
-      }
-      // Basic YWRtaW46YWRtaW4=
-      const [authType, token] = authHeader.split(" ");
-
-      if (authType !== "Basic" || !token) {
-        throw new ForbiddenError("Invalid authorization type", "Error");
-      }
-
-      // Decode token
-      const decodeToken = Buffer.from(token, "base64").toString("utf-8");
-      const [username, password] = decodeToken.split(":");
-
-      if (!username || !password) {
-        throw new ForbiddenError("Incomplete access data", "Error");
-      }
-
-      // Check if user exists
-      const user = await userRepositoty.findUserByUsernameAndPassword(
-        username,
-        password
-      );
-
+    try {      
+      const user = req.user;
       if (!user) {
-        throw new ForbiddenError("User not found", "Error");
+        throw new ForbiddenError("Unauthenticated user ", "Error");
       }
 
-      const jwtPayload = { username: user.username };
+      const jwtPayload = { username: user?.username };
       const jwtOptions = {
         subject: user?.uuid,
         expiresIn: "1h",

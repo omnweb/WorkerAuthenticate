@@ -1,7 +1,10 @@
 import express from "express";
 import errorHandller from "./middlewares/error.handler.middleware";
+import BasicAuthMiddleware from "./middlewares/basic.auth.middleware";
+
 import authRoute from "./routes/authorization.route";
 import userRoute from "./routes/users.route";
+
 
 const app = express();
 app.use(express.json()); // for parsing application/json
@@ -15,6 +18,7 @@ const baseUrl = "http://localhost";
 
 // Start the server
 app
+  // .use(BasicAuthMiddleware)
   .use(userRoute)
   .use(authRoute)
   .use(errorHandller)
