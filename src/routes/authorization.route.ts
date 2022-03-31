@@ -1,7 +1,8 @@
-import { StatusCodes } from 'http-status-codes';
+import { StatusCodes } from "http-status-codes";
 import { NextFunction, Request, Response, Router } from "express";
 import ForbiddenError from "../models/errors/forbidden.error.model";
 import userRepositoty from "../repositories/user.repositoty";
+import JWT from "jsonwebtoken";
 
 const authRoute = Router();
 authRoute.post(
@@ -20,24 +21,37 @@ authRoute.post(
       }
 
       // Decode token
-     const decodeToken =  Buffer.from(token, "base64").toString("utf-8");
-     const [username, password] = decodeToken.split(":");
+      const decodeToken = Buffer.from(token, "base64").toString("utf-8");
+      const [username, password] = decodeToken.split(":");
 
-     if (!username || !password) {
-       throw new ForbiddenError("Incomplete access data", "Error");
-     }
-      
+      if (!username || !password) {
+        throw new ForbiddenError("Incomplete access data", "Error");
+      }
+
       // Check if user exists
-      const user = await userRepositoty.findUserByUsernameAndPassword(username, password);
+      const user = await userRepositoty.findUserByUsernameAndPassword(
+        username,
+        password
+      );
 
       if (!user) {
         throw new ForbiddenError("User not found", "Error");
       }
 
-      
-      
-      res.status(StatusCodes.OK).send(user);
+      const jwtPayload = { username: user.username };
+      const jwtOptions = {
+        subject: user?.uuid,
+        expiresIn: "1h",
+        algorithm: "HS256",
+      };
+      const jwtKey = "my_secret_key";
 
+      const jwt = JWT.sign(jwtPayload, jwtKey, {
+        subject: jwtOptions.subject,
+        expiresIn: jwtOptions.expiresIn,
+      });
+
+      res.status(StatusCodes.OK).json({ token: jwt });
     } catch (error) {
       next(error);
     }

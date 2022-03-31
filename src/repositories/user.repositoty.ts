@@ -15,7 +15,6 @@ class UserRepository {
           AND password = crypt($2, 'my_salt')
       `;
       const values = [username, password];
-      console.log(query)
       const { rows } = await db.query<User>(query, values);
       const [user] = rows;
       return user || null;
