@@ -1,18 +1,20 @@
-import { StatusCodes } from "http-status-codes";
 import { NextFunction, Request, Response, Router } from "express";
+import { StatusCodes } from "http-status-codes";
 import JWT from "jsonwebtoken";
 import BasicAuthMiddleware from "../middlewares/basic.auth.middleware";
+import JWTAuthMiddleware from "../middlewares/jwt.auth.middleware";
 import ForbiddenError from "../models/errors/forbidden.error.model";
 
 const authRoute = Router();
+
 authRoute.post(
   "/token",
   BasicAuthMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    try {      
+    try {
       const user = req.user;
       if (!user) {
-        throw new ForbiddenError("Unauthenticated user ", "Error");
+        throw new ForbiddenError("Unauthenticated user ");
       }
 
       const jwtPayload = { username: user?.username };
@@ -32,6 +34,14 @@ authRoute.post(
     } catch (error) {
       next(error);
     }
+  }
+);
+
+authRoute.post(
+  "/token/validate",
+  JWTAuthMiddleware,
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.sendStatus(StatusCodes.OK);
   }
 );
 

@@ -17,7 +17,7 @@ class UserRepository {
       const values = [username, password];
       const { rows } = await db.query<User>(query, values);
       const [user] = rows;
-      return user || null;
+      return user || 'User not found';
     } catch (error) {
       throw new DatabaseError("Error fetching user and password", error);
     }

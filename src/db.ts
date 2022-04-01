@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { API_KEY } from './config/config';
+import { API_KEY } from "./config/config";
 
 // PGHOST='localhost'
 // PGUSER=process.env.USER
@@ -10,4 +10,3 @@ import { API_KEY } from './config/config';
 const db = new Pool({ connectionString: API_KEY });
 
 export default db;
-

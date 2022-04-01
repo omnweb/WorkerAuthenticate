@@ -1,18 +1,22 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import ForbiddenError from "../models/errors/forbidden.error.model";
 import userRepositoty from "../repositories/user.repositoty";
 
-async function BasicAuthMiddleware (req: Request, res: Response, next: NextFunction) {
+async function BasicAuthMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const authHeader = req.headers["authorization"];
     if (!authHeader) {
-      throw new ForbiddenError("No authorization header found", "Error");
+      throw new ForbiddenError("No authorization header found");
     }
     // Basic YWRtaW46YWRtaW4=
     const [authType, token] = authHeader.split(" ");
 
     if (authType !== "Basic" || !token) {
-      throw new ForbiddenError("Invalid authorization type", "Error");
+      throw new ForbiddenError("Invalid authorization type");
     }
 
     // Decode token
@@ -20,7 +24,7 @@ async function BasicAuthMiddleware (req: Request, res: Response, next: NextFunct
     const [username, password] = decodeToken.split(":");
 
     if (!username || !password) {
-      throw new ForbiddenError("Incomplete access data", "Error");
+      throw new ForbiddenError("Incomplete access data");
     }
 
     // Check if user exists
@@ -29,9 +33,10 @@ async function BasicAuthMiddleware (req: Request, res: Response, next: NextFunct
       password
     );
 
-    if (!user) {
-      throw new ForbiddenError("User not found", "Error");
+    if (username !== user?.username || password !== user?.password) {
+      throw new ForbiddenError("Invalid access data");
     }
+
     req.user = user;
     next();
   } catch (error) {

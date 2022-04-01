@@ -1,6 +1,6 @@
 {
-  "config":["./src/config/config.ts"],
-  "include": ["./src/"], 
+  "config": ["./src/config/config.ts"],
+  "include": ["./src/"],
   "exclude": ["../wwwroot/app", "node_modules/*"],
   "compilerOptions": {
     "target": "es2020",
