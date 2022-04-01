@@ -78,7 +78,7 @@ class UserRepository {
             SET 
               username = $1, 
               email = $2, 
-              password = crypt($3, 'my_salt')
+              password = crypt($3, 'my_salt'),
               updated_at = now()
             WHERE uuid = $4
         `;
